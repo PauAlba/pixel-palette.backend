@@ -45,7 +45,7 @@ app.use(express.urlencoded({ extended: true }));
 // ─── Request logger ───────────────────────────────────────────────────────────
 app.use(
   (pinoHttp as any)({
-    logger,
+    level: env.NODE_ENV === 'production' ? 'info' : 'debug',
     customProps: (req: Request) => {
       // Add userId to logs if available from auth middleware
       // Note: req.user won't be available here globally unless auth middleware is run before
