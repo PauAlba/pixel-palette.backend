@@ -44,8 +44,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // ─── Request logger ───────────────────────────────────────────────────────────
 app.use(
-  // @ts-ignore - pino-http types can conflict with esModuleInterop in some strict configs
-  pinoHttp({
+  (pinoHttp as any)({
     logger,
     customProps: (req: Request) => {
       // Add userId to logs if available from auth middleware
