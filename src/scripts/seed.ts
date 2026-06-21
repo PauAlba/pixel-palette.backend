@@ -27,11 +27,11 @@ async function seed() {
   });
 
   logger.info('Creating posts...');
-  const p1 = await postsService.createNewPost(user1.profile.id, { content: 'My first pixel art!', post_type: 'text' });
-  const p2 = await postsService.createNewPost(user2.profile.id, { content: 'Happy little pixels.', post_type: 'text' });
-  const p3 = await postsService.createNewPost(user1.profile.id, { content: 'Another masterpiece.', post_type: 'text' });
-  const p4 = await postsService.createNewPost(user3.profile.id, { content: 'Silent movies were better.', post_type: 'text' });
-  const p5 = await postsService.createNewPost(user2.profile.id, { content: 'More happy trees.', post_type: 'text' });
+  const p1 = await postsService.createNewPost(user1.profile.id, { content: 'My first pixel art!', post_type: 'text', tags: [], is_featured: false });
+  const p2 = await postsService.createNewPost(user2.profile.id, { content: 'Happy little pixels.', post_type: 'text', tags: [], is_featured: false });
+  const p3 = await postsService.createNewPost(user1.profile.id, { content: 'Another masterpiece.', post_type: 'text', tags: [], is_featured: false });
+  const p4 = await postsService.createNewPost(user3.profile.id, { content: 'Silent movies were better.', post_type: 'text', tags: [], is_featured: false });
+  const p5 = await postsService.createNewPost(user2.profile.id, { content: 'More happy trees.', post_type: 'text', tags: [], is_featured: false });
 
   logger.info('Creating comments...');
   await commentsService.addComment(user2.profile.id, p1.id, { content: 'Looks great!' });
