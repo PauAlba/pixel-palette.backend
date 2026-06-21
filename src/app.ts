@@ -5,7 +5,6 @@ import hpp from 'hpp';
 import rateLimit from 'express-rate-limit';
 import pinoHttp from 'pino-http';
 import { isPgHealthy, isMongoHealthy } from './config/db.js';
-import { logger } from './config/logger.js';
 import { env } from './config/env.js';
 import { authRouter } from './modules/auth/auth.routes.js';
 import { profilesRouter } from './modules/profiles/profiles.routes.js';
