@@ -142,3 +142,18 @@ export async function findPostsByUsername(
 
   return { rows: dataResult.rows, total };
 }
+
+export async function findTopProfilesByFollowers(limit: number): Promise<ProfileWithCounts[]> {
+  const result = await pgPool.query<ProfileWithCounts>(
+    `SELECT
+       p.*,
+       (SELECT COUNT(*)::int FROM posts    WHERE author_id = p.id)    AS posts_count,
+       (SELECT COUNT(*)::int FROM followers WHERE following_id = p.id) AS followers_count,
+       (SELECT COUNT(*)::int FROM followers WHERE follower_id  = p.id) AS following_count
+     FROM profiles p
+     ORDER BY followers_count DESC
+     LIMIT $1`,
+    [limit],
+  );
+  return result.rows;
+}

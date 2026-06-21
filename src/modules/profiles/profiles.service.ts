@@ -4,6 +4,7 @@ import {
   findProfileWithCountsByUsername,
   updateProfile,
   findPostsByUsername,
+  findTopProfilesByFollowers,
   type ProfileWithCounts,
   type PostRow,
 } from './profiles.repository.js';
@@ -33,4 +34,8 @@ export async function getProfilePosts(
   const offset = (params.page - 1) * params.limit;
   const { rows, total } = await findPostsByUsername(username, offset, params.limit);
   return buildPaginationResult(rows, total, params);
+}
+
+export async function getTopProfiles(limit: number = 4): Promise<ProfileWithCounts[]> {
+  return findTopProfilesByFollowers(limit);
 }

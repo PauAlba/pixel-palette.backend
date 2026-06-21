@@ -22,3 +22,11 @@ export const getProfilePostsHandler = asyncHandler(async (req: Request, res: Res
   const result = await profilesService.getProfilePosts(username, req.query['page'], req.query['limit']);
   res.status(200).json({ data: result });
 });
+
+export const getTopProfilesHandler = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  // Option to read limit from query, default to 4
+  const limitStr = req.query['limit'] as string | undefined;
+  const limit = limitStr ? parseInt(limitStr, 10) : 4;
+  const topProfiles = await profilesService.getTopProfiles(isNaN(limit) ? 4 : limit);
+  res.status(200).json({ data: topProfiles });
+});

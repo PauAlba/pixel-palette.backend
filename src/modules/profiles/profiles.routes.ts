@@ -6,6 +6,7 @@ import {
   getProfileHandler,
   patchProfileHandler,
   getProfilePostsHandler,
+  getTopProfilesHandler,
 } from './profiles.controller.js';
 import {
   getFollowersHandler,
@@ -15,6 +16,7 @@ import {
 export const profilesRouter = Router();
 
 // Public
+profilesRouter.get('/top', getTopProfilesHandler);
 profilesRouter.get('/:username', getProfileHandler);
 profilesRouter.get('/:username/posts', getProfilePostsHandler);
 profilesRouter.get('/:username/followers', getFollowersHandler);
