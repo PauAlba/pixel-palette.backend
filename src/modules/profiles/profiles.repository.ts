@@ -157,3 +157,28 @@ export async function findTopProfilesByFollowers(limit: number): Promise<Profile
   );
   return result.rows;
 }
+
+export async function findAllProfiles(
+  offset: number,
+  limit: number,
+): Promise<{ rows: ProfileWithCounts[]; total: number }> {
+  const [countRes, dataRes] = await Promise.all([
+    pgPool.query<{ total: string }>('SELECT COUNT(*)::text AS total FROM profiles'),
+    pgPool.query<ProfileWithCounts>(
+      `SELECT
+         p.*,
+         (SELECT COUNT(*)::int FROM posts    WHERE author_id = p.id)    AS posts_count,
+         (SELECT COUNT(*)::int FROM followers WHERE following_id = p.id) AS followers_count,
+         (SELECT COUNT(*)::int FROM followers WHERE follower_id  = p.id) AS following_count
+       FROM profiles p
+       ORDER BY p.created_at DESC
+       LIMIT $1 OFFSET $2`,
+      [limit, offset],
+    ),
+  ]);
+
+  return {
+    total: parseInt(countRes.rows[0]?.total ?? '0', 10),
+    rows: dataRes.rows,
+  };
+}

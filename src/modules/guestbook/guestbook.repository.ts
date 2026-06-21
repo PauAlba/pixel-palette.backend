@@ -73,3 +73,18 @@ export async function createGuestbookEntry(
 export async function deleteGuestbookEntry(id: string): Promise<void> {
   await pgPool.query('DELETE FROM guestbook_entries WHERE id = $1', [id]);
 }
+
+export async function findAllGuestbooks(limit: number): Promise<GuestbookEntryRow[]> {
+  const result = await pgPool.query<GuestbookEntryRow>(
+    `SELECT g.id, g.profile_id, g.author_id, g.message, g.created_at,
+            p.username AS author_username,
+            p.display_name AS author_display_name,
+            p.avatar_url AS author_avatar_url
+     FROM guestbook_entries g
+     JOIN profiles p ON p.id = g.author_id
+     ORDER BY g.created_at DESC
+     LIMIT $1`,
+    [limit],
+  );
+  return result.rows;
+}

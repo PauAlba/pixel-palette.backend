@@ -30,3 +30,15 @@ export const getTopProfilesHandler = asyncHandler(async (req: Request, res: Resp
   const topProfiles = await profilesService.getTopProfiles(isNaN(limit) ? 4 : limit);
   res.status(200).json({ data: topProfiles });
 });
+
+export const getProfilesHandler = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  const result = await profilesService.getAllProfiles(req.query['page'], req.query['limit']);
+  res.status(200).json({ data: result });
+});
+
+export const deleteProfileHandler = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  if (!req.user) throw new AppError('Unauthorized', 401);
+  const { username } = req.params as { username: string };
+  await profilesService.removeProfile(req.user.id, req.user.role, username);
+  res.status(204).send();
+});

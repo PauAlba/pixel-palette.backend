@@ -24,3 +24,8 @@ export const deleteGuestbookHandler = asyncHandler(async (req: Request, res: Res
   await guestbookService.removeGuestbookEntry(req.user.id, id);
   res.status(204).send();
 });
+
+export const getAllGuestbooksHandler = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  const result = await guestbookService.getAllGuestbooks(req.query['page'], req.query['limit']);
+  res.status(200).json({ data: result });
+});

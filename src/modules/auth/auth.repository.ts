@@ -1,5 +1,6 @@
 import { pgPool } from '../../config/db.js';
 import { UserTheme } from '../../models/mongo/userTheme.model.js';
+import { Notification } from '../../models/mongo/notification.model.js';
 import { AppError } from '../../utils/AppError.js';
 
 export interface UserRow {
@@ -100,6 +101,28 @@ export async function createUserWithProfile(input: CreateUserInput): Promise<Cre
 
     await client.query('COMMIT');
     return { user, profile };
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
+export async function deleteUserById(userId: string): Promise<void> {
+  const client = await pgPool.connect();
+
+  try {
+    await client.query('BEGIN');
+
+    // 1. Delete from PostgreSQL (cascades to profiles, posts, etc.)
+    await client.query('DELETE FROM users WHERE id = $1', [userId]);
+
+    // 2. Delete from MongoDB
+    await UserTheme.deleteOne({ userId });
+    await Notification.deleteMany({ userId });
+
+    await client.query('COMMIT');
   } catch (err) {
     await client.query('ROLLBACK');
     throw err;

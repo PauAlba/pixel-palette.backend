@@ -7,6 +7,8 @@ import {
   patchProfileHandler,
   getProfilePostsHandler,
   getTopProfilesHandler,
+  getProfilesHandler,
+  deleteProfileHandler,
 } from './profiles.controller.js';
 import {
   getFollowersHandler,
@@ -16,6 +18,7 @@ import {
 export const profilesRouter = Router();
 
 // Public
+profilesRouter.get('/', getProfilesHandler);
 profilesRouter.get('/top', getTopProfilesHandler);
 profilesRouter.get('/:username', getProfileHandler);
 profilesRouter.get('/:username/posts', getProfilePostsHandler);
@@ -24,3 +27,4 @@ profilesRouter.get('/:username/following', getFollowingHandler);
 
 // Protected
 profilesRouter.patch('/me', requireAuth, validate(updateProfileSchema), patchProfileHandler);
+profilesRouter.delete('/:username', requireAuth, deleteProfileHandler);

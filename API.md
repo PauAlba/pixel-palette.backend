@@ -43,6 +43,11 @@ curl $BASE_URL/auth/me -H "Authorization: Bearer $TOKEN"
 
 ## Profiles
 
+### Get All Profiles
+```bash
+curl "$BASE_URL/profiles?page=1&limit=10"
+```
+
 ### Get Top Profiles
 ```bash
 curl "$BASE_URL/profiles/top?limit=4"
@@ -74,6 +79,12 @@ curl "$BASE_URL/profiles/pixel_user/followers?page=1&limit=10"
 ### Get Profile Following
 ```bash
 curl "$BASE_URL/profiles/pixel_user/following?page=1&limit=10"
+```
+
+### Delete Profile
+```bash
+curl -X DELETE $BASE_URL/profiles/pixel_user \
+  -H "Authorization: Bearer $TOKEN"
 ```
 
 ## Followers
@@ -180,6 +191,11 @@ curl -X PATCH $BASE_URL/notifications/read-all -H "Authorization: Bearer $TOKEN"
 ```
 
 ## Themes & Guestbook
+
+### Get All Guestbook Signatures
+```bash
+curl "$BASE_URL/guestbook?limit=40"
+```
 
 ### Get User Theme
 ```bash

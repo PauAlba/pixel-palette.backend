@@ -6,10 +6,12 @@ import {
   getGuestbookHandler,
   createGuestbookHandler,
   deleteGuestbookHandler,
+  getAllGuestbooksHandler,
 } from './guestbook.controller.js';
 
 export const guestbookRouter = Router();
 
+guestbookRouter.get('/', getAllGuestbooksHandler);
 guestbookRouter.get('/:username', getGuestbookHandler);
 guestbookRouter.post('/:username', requireAuth, validate(createGuestbookSchema), createGuestbookHandler);
 guestbookRouter.delete('/:id', requireAuth, deleteGuestbookHandler);
