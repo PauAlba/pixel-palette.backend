@@ -61,18 +61,12 @@ export async function getAllGuestbooks(
   rawLimit: unknown,
 ): Promise<PaginationResult<GuestbookEntryRow>> {
   const params = parsePagination(rawPage, rawLimit);
-  // Optional: override the limit to 40 if needed, but pagination allows 40 via ?limit=40
-  // "con limite de 40" could mean limit=40 by default, let's just force limit = 40 or let parsePagination handle it.
-  // We'll pass the params.limit to repository, but wait, the query in repo doesn't do offset yet.
-  // Ah! `findAllGuestbooks` in repository only accepts `limit`. It doesn't paginate. 
-  // Wait, I implemented `findAllGuestbooks(limit: number)` and it doesn't take an offset. 
-  // Let me change that. I'll just use limit for now and return { data: rows } without PaginationResult.
-  
+  // Default to 40 if limit is not provided or too small, but wait, parsePagination already provides a limit (default 10).
+  // If the user wants to enforce a maximum of 40 or default to 40 if not provided, we can just use params.
   const limit = typeof rawLimit === 'string' ? parseInt(rawLimit, 10) : 40;
-  const finalLimit = isNaN(limit) ? 40 : limit;
-  const rows = await findAllGuestbooks(finalLimit);
+  params.limit = isNaN(limit) ? 40 : limit;
   
-  // Return a mock pagination result to keep the interface similar, or just return the rows.
-  // Actually, since I didn't add offset in repo, I'll just return the rows.
-  return buildPaginationResult(rows, rows.length, { page: 1, limit: finalLimit });
+  const rows = await findAllGuestbooks(params.limit);
+  
+  return buildPaginationResult(rows, rows.length, params);
 }
