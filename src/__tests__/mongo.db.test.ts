@@ -1,6 +1,5 @@
-import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest';
+import { describe, it, expect, afterEach } from 'vitest';
 import mongoose from 'mongoose';
-import { MongoMemoryServer } from 'mongodb-memory-server';
 import { UserTheme } from '../models/mongo/userTheme.model.js';
 
 describe('NoSQL DB (MongoDB) Tests (Checklist 4.3)', () => {
