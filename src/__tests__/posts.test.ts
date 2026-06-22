@@ -4,8 +4,8 @@ import { app } from '../app.js';
 import { pgPool } from '../config/db.js';
 
 describe('Posts CRUD and Ownership', () => {
-  const user1 = { email: `u1_${Date.now()}@test.com`, password: 'pw', username: `u1_${Date.now()}`, display_name: 'U1' };
-  const user2 = { email: `u2_${Date.now()}@test.com`, password: 'pw', username: `u2_${Date.now()}`, display_name: 'U2' };
+  const user1 = { email: `u1_${Date.now()}@test.com`, password: 'Password123', username: `u1_${Date.now()}`, display_name: 'U1' };
+  const user2 = { email: `u2_${Date.now()}@test.com`, password: 'Password123', username: `u2_${Date.now()}`, display_name: 'U2' };
   let token1: string;
   let token2: string;
   let postId: string;

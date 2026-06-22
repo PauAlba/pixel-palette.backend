@@ -4,9 +4,10 @@ export const BACKGROUND_PATTERNS = [
   'dots',
   'grid',
   'stripes',
-  'checkerboard',
+  'checker',
   'hearts',
   'stars',
+  'leopard',
   'none',
 ] as const;
 

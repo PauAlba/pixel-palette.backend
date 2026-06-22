@@ -5,7 +5,7 @@ import { pgPool } from '../config/db.js';
 
 describe('Security Injections', () => {
   let token: string;
-  const user = { email: `inj_${Date.now()}@test.com`, password: 'pw', username: `inj_${Date.now()}`, display_name: 'Inj' };
+  const user = { email: `inj_${Date.now()}@test.com`, password: 'Password123', username: `inj_${Date.now()}`, display_name: 'Inj' };
 
   beforeAll(async () => {
     const res = await request(app).post('/api/auth/signup').send(user);
