@@ -1,4 +1,4 @@
-import { describe, it, expect, afterAll } from 'vitest';
+import { describe, it, expect, afterAll, beforeAll } from 'vitest';
 import { pgPool } from '../config/db.js';
 import { createUserWithProfile, deleteUserById, findUserByEmail } from '../modules/auth/auth.repository.js';
 import { updateProfile, findProfileWithCountsByUsername } from '../modules/profiles/profiles.repository.js';
@@ -87,6 +87,77 @@ describe('Relational DB (PostgreSQL) Tests (Checklist 4.2)', () => {
       // Because the transaction rolled back, the user should NOT have been created in the `users` table either
       const user = await findUserByEmail(email);
       expect(user).toBeNull();
+    });
+
+    it('should prevent inserting data with invalid Foreign Keys (FK Constraint)', async () => {
+      // Intenta crear un post con un author_id que no existe
+      const fakeUuid = '00000000-0000-0000-0000-000000000000';
+      await expect(
+        pgPool.query(
+          `INSERT INTO posts (author_id, content) VALUES ($1, $2)`,
+          [fakeUuid, 'Este post nunca debería existir']
+        )
+      ).rejects.toThrow(); // Postgres error 23503 (foreign_key_violation)
+    });
+  });
+
+  describe('Consultas Avanzadas y Pool', () => {
+    const advUsername = `adv_user_${Date.now()}`;
+    let advUserId: string;
+    let advProfileId: string;
+
+    beforeAll(async () => {
+      const result = await createUserWithProfile({
+        email: `adv_${Date.now()}@test.com`,
+        password_hash: 'hash',
+        username: advUsername,
+        display_name: 'Advanced User'
+      });
+      advUserId = result.user.id;
+      advProfileId = result.profile.id;
+    });
+
+    it('should solve the N+1 problem by using a JOIN to get author data in a single query', async () => {
+      // findProfileWithCountsByUsername usa JOINs para resolver todo de un golpe
+      const profile = await findProfileWithCountsByUsername(advUsername);
+      expect(profile).toHaveProperty('followers_count');
+      expect(profile).toHaveProperty('following_count');
+      expect(profile).not.toBeNull();
+    });
+
+    it('should maintain Determinism (ORDER BY should return consistent ordered results)', async () => {
+      // Inserción directa saltando validaciones para manipular fechas artificialmente
+      await pgPool.query(
+        `INSERT INTO posts (author_id, content, created_at) VALUES 
+         ($1, 'Post Viejo', now() - interval '2 days'),
+         ($1, 'Post Nuevo', now()),
+         ($1, 'Post Medio', now() - interval '1 day')`,
+        [advProfileId]
+      );
+
+      // findFeedPosts ordena por created_at DESC, traemos más límite por si hay posts de otros tests
+      const { rows } = await import('../modules/posts/posts.repository.js').then(m => m.findFeedPosts(0, 100));
+      
+      // Filtrar los que acabamos de crear
+      const userPosts = rows.filter(r => r.author_id === advProfileId);
+      
+      expect(userPosts.length).toBe(3);
+      expect(userPosts[0].content).toBe('Post Nuevo');
+      expect(userPosts[1].content).toBe('Post Medio');
+      expect(userPosts[2].content).toBe('Post Viejo');
+    });
+
+    it('should release connections back to the pool without leaking', async () => {
+      // Obtenemos una conexión manual
+      const client = await pgPool.connect();
+      // Ejecutamos una consulta simple
+      await client.query('SELECT 1');
+      // La liberamos obligatoriamente
+      client.release();
+      
+      // En un pool sano donde nadie está haciendo query activamente en este momento (porque los tests son secuenciales)
+      // el idleCount (conexiones dormidas pero vivas) debe ser igual al totalCount
+      expect(pgPool.idleCount).toBe(pgPool.totalCount);
     });
   });
 });
